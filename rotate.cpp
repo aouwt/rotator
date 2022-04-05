@@ -4,7 +4,6 @@
 #include <X11/extensions/XInput.h>
 #include <gio/gio.h>
 #include <gtk/gtk.h>
-#include <ieee754.h>
 
 //typedef double TFLOAT;
 union TFLOAT {
@@ -51,6 +50,7 @@ namespace all {
 	static void setup (void);
 	static void enable (void);
 	static void disable (void);
+	static void rot (Rotation dir);
 }
 static bool on = true;
 
@@ -58,7 +58,7 @@ static bool on = true;
 namespace x11 {
 	static Display *disp;
 
-	namespace rot {
+	namespace scr {
 		int default_screen;
 		Window root;
 		
@@ -67,7 +67,7 @@ namespace x11 {
 			root = RootWindow (disp, default_screen);
 		}
 		
-		static void set (Rotation dir) {
+		static void rot (Rotation dir) {
 			XSync (disp, false);
 			
 			XRRScreenConfiguration *config = XRRGetScreenInfo (disp, root);
@@ -108,7 +108,9 @@ namespace x11 {
 			XFreeDeviceList (devices);
 		}
 		
-		static void set (Rotation dir) {
+		
+		
+		static void rot (Rotation dir) {
 			
 			const TFLOAT *trans; // 🏳️‍⚧️
 			switch (dir) {
@@ -142,12 +144,12 @@ namespace x11 {
 	static void disable (void) { return; }
 	static void setup (void) {
 		disp = XOpenDisplay (getenv ("DISPLAY"));
-		rot::setup (); touch::setup ();
+		scr::setup (); touch::setup ();
 		XSync (disp, false);
 	}
-	static void set (Rotation dir) {
-		rot::set (dir);
-		touch::set (dir);
+	static void rot (Rotation dir) {
+		scr::rot (dir);
+		touch::rot (dir);
 		XSync (disp, false);
 	}
 }
@@ -193,7 +195,7 @@ namespace motion {
 						exit (128);
 						break;
 				}
-				x11::set (rot);
+				all::rot (rot);
 				
 				g_variant_unref (variant);
 			}
@@ -231,9 +233,11 @@ namespace motion {
 
 namespace icon {
 	static GtkStatusIcon *icon;
+	static GtkMenu *menu;
+	static GSList *radio_group = NULL;
 	
 	namespace callback {
-		static void onclick (GtkStatusIcon *self, GdkEventButton event, gpointer dat) {
+		static void onclick (GtkStatusIcon *self, gpointer dat) {
 			if (on) {
 				on = false;
 				all::disable ();
@@ -242,7 +246,23 @@ namespace icon {
 				all::enable ();
 			}
 		}
+		
+		static void popup (GtkStatusIcon *self, guint btn, guint time, gpointer dat) {
+			gtk_menu_popup (
+				menu,
+				NULL, NULL,
+				NULL, NULL,
+				btn, time
+			);
+		}
+		
+		static void r_up (GtkMenuItem *self, gpointer dat) { all::rot (RR_Rotate_0); }
+		static void r_down (GtkMenuItem *self, gpointer dat) { all::rot (RR_Rotate_180); }
+		static void r_left (GtkMenuItem *self, gpointer dat) { all::rot (RR_Rotate_90); }
+		static void r_right (GtkMenuItem *self, gpointer dat) { all::rot (RR_Rotate_270); }
 	}
+	
+	
 	
 	static void enable (void) {
 		gtk_status_icon_set_from_icon_name (icon, "changes-allow");
@@ -255,13 +275,44 @@ namespace icon {
 	}
 	
 	
+	
+	static void append_menu_item (const gchar *text, GCallback callback) {
+		GtkWidget *item = gtk_radio_menu_item_new_with_label (radio_group, text);
+		
+		g_signal_connect (
+			G_OBJECT (item), "activate",
+			callback, NULL
+		);
+		
+		gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
+	}
+	
+	
+	
 	static void setup (void) {
+		// set up icon
 		icon = gtk_status_icon_new ();
 		gtk_status_icon_set_title (icon, "Rotation control");
 		
+		// set up popup menu
+		menu = GTK_MENU (gtk_menu_new ());
+		gtk_menu_set_title (menu, "Rotate");
+		
+		// menu items
+		append_menu_item ("Normal", G_CALLBACK (callback::r_up));
+		append_menu_item ("Left", G_CALLBACK (callback::r_left));
+		append_menu_item ("Right", G_CALLBACK (callback::r_right));
+		append_menu_item ("Down", G_CALLBACK (callback::r_down));
+		
+		// signals
 		g_signal_connect (
-			G_OBJECT (icon), "button-press-event",
+			G_OBJECT (icon), "activate",
 			G_CALLBACK (callback::onclick), NULL
+		);
+		
+		g_signal_connect (
+			G_OBJECT (icon), "popup-menu",
+			G_CALLBACK (callback::popup), NULL
 		);
 		
 		gtk_status_icon_set_visible (icon, TRUE);
@@ -284,6 +335,10 @@ static void all::disable (void) {
 	icon::disable ();
 	motion::disable ();
 	x11::disable ();
+}
+
+static void all::rot (Rotation dir) {
+	x11::rot (dir);
 }
 
 int main (int argc, char *argv []) {

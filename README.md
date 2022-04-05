@@ -30,7 +30,7 @@ Additionally, you'd need:
 Then, you can compile it with the following command:
 
 ```
-c++ rotate.cpp $(pkg-config --libs --cflags glib-2.0 gio-2.0 gtk+-2.0 xrandr xi) -mtune=native -march=native -Ofast -o rotate
+c++ rotate.cpp $(pkg-config --libs --cflags glib-2.0 gio-2.0 gtk+-2.0 xrandr xi x11) -mtune=native -march=native -Ofast -o rotate
 ```
 
 It then will create a binary, `rotate`, in the current directory. Run that, and you'll get your rotation control!

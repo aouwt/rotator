@@ -1,5 +1,5 @@
 # rotator
-Basic rotation control tray icon
+Basic rotation control tray icon with tiny footprint.
 
 I made this pretty much for my own use only, so I didn't really put in a lot of failsafes in it.
 

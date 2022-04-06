@@ -182,7 +182,7 @@ namespace motion {
 						break;
 						
 					case 'b': //bottom-up
-						rot = RR_Rotate_0;
+						rot = RR_Rotate_180;
 						break;
 						
 					case 'r': //right-up

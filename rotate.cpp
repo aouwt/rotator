@@ -236,6 +236,7 @@ namespace icon {
 	static GtkMenu *menu;
 	static GSList *radio_group = NULL;
 	
+	
 	namespace callback {
 		static void onclick (GtkStatusIcon *self, gpointer dat) {
 			if (on) {
@@ -277,7 +278,9 @@ namespace icon {
 	
 	
 	static void append_menu_item (const gchar *text, GCallback callback) {
-		GtkWidget *item = gtk_radio_menu_item_new_with_label (radio_group, text);
+		GtkWidget *item = gtk_radio_menu_item_new_with_label (radio_group, text); //gtk_menu_item_new_with_label (text);
+		//if (radio_group == NULL)
+			radio_group = gtk_radio_menu_item_group (GTK_RADIO_MENU_ITEM (item));
 		
 		g_signal_connect (
 			G_OBJECT (item), "activate",
@@ -285,6 +288,7 @@ namespace icon {
 		);
 		
 		gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
+		gtk_widget_show_all (GTK_WIDGET (item));
 	}
 	
 	
@@ -297,6 +301,7 @@ namespace icon {
 		// set up popup menu
 		menu = GTK_MENU (gtk_menu_new ());
 		gtk_menu_set_title (menu, "Rotate");
+		gtk_menu_shell_set_take_focus (GTK_MENU_SHELL (menu), true);
 		
 		// menu items
 		append_menu_item ("Normal", G_CALLBACK (callback::r_up));

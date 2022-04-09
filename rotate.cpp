@@ -238,7 +238,7 @@ namespace icon {
 	
 	
 	namespace callback {
-		static void onclick (GtkStatusIcon *self, gpointer dat) {
+		static void toggle (GtkMenuItem *self, gpointer dat) {
 			if (on) {
 				on = false;
 				all::disable ();
@@ -277,10 +277,9 @@ namespace icon {
 	
 	
 	
-	static void append_menu_item (const gchar *text, GCallback callback) {
-		GtkWidget *item = gtk_radio_menu_item_new_with_label (radio_group, text); //gtk_menu_item_new_with_label (text);
-		//if (radio_group == NULL)
-			radio_group = gtk_radio_menu_item_group (GTK_RADIO_MENU_ITEM (item));
+	static void append_radio_item (const gchar *text, GCallback callback) {
+		GtkWidget *item = gtk_radio_menu_item_new_with_label (radio_group, text);
+		radio_group = gtk_radio_menu_item_group (GTK_RADIO_MENU_ITEM (item));
 		
 		g_signal_connect (
 			G_OBJECT (item), "activate",
@@ -288,7 +287,7 @@ namespace icon {
 		);
 		
 		gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
-		gtk_widget_show_all (GTK_WIDGET (item));
+		gtk_widget_show_all (item);
 	}
 	
 	
@@ -303,18 +302,26 @@ namespace icon {
 		gtk_menu_set_title (menu, "Rotate");
 		gtk_menu_shell_set_take_focus (GTK_MENU_SHELL (menu), true);
 		
-		// menu items
-		append_menu_item ("Normal", G_CALLBACK (callback::r_up));
-		append_menu_item ("Left", G_CALLBACK (callback::r_left));
-		append_menu_item ("Right", G_CALLBACK (callback::r_right));
-		append_menu_item ("Down", G_CALLBACK (callback::r_down));
+		// check box!
+		{	GtkWidget *item = gtk_check_menu_item_new_with_label ("Automatic rotation");
+			
+			g_signal_connect (
+				G_OBJECT (item), "activate",
+				G_CALLBACK (callback::toggle), NULL
+			);
+			
+			gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
+			gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (item), true);
+			gtk_widget_show_all (item);
+		}
 		
-		// signals
-		g_signal_connect (
-			G_OBJECT (icon), "activate",
-			G_CALLBACK (callback::onclick), NULL
-		);
+		// radio menu items
+		append_radio_item ("Normal", G_CALLBACK (callback::r_up));
+		append_radio_item ("Left", G_CALLBACK (callback::r_left));
+		append_radio_item ("Right", G_CALLBACK (callback::r_right));
+		append_radio_item ("Down", G_CALLBACK (callback::r_down));
 		
+		// open popup menu on right click
 		g_signal_connect (
 			G_OBJECT (icon), "popup-menu",
 			G_CALLBACK (callback::popup), NULL

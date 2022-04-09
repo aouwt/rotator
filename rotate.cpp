@@ -11,6 +11,7 @@ union TFLOAT {
 	long padding;
 };
 
+
 namespace config {
 	// IMPORTANT!!!! List the INPUT devices which you want to rotate here (touchpad, touchscreen, etc)
 	static const char *XDevs [] = {
@@ -52,7 +53,7 @@ namespace all {
 	static void disable (void);
 	static void rot (Rotation dir);
 }
-static bool on = true;
+static bool on = false;
 
 
 namespace x11 {
@@ -311,7 +312,7 @@ namespace icon {
 			);
 			
 			gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
-			gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (item), true);
+			// gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (item), true); // ???
 			gtk_widget_show_all (item);
 		}
 		
@@ -359,7 +360,7 @@ int main (int argc, char *argv []) {
 	
 	gtk_init (&argc, &argv);
 	all::setup ();
-	all::enable ();
+	all::disable ();
 	
 	GMainLoop *loop = g_main_loop_new (NULL, TRUE);
 	g_main_loop_run (loop);

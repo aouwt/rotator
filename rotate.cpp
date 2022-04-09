@@ -235,7 +235,6 @@ namespace motion {
 namespace icon {
 	static GtkStatusIcon *icon;
 	static GtkMenu *menu;
-	static GSList *radio_group = NULL;
 	
 	
 	namespace callback {
@@ -278,7 +277,9 @@ namespace icon {
 	
 	
 	
-	static void append_radio_item (const gchar *text, GCallback callback) {
+	static void append_radio_item (const gchar *text, GCallback callback) {\
+		static GSList *radio_group = NULL;
+		
 		GtkWidget *item = gtk_radio_menu_item_new_with_label (radio_group, text);
 		radio_group = gtk_radio_menu_item_group (GTK_RADIO_MENU_ITEM (item));
 		
@@ -313,6 +314,12 @@ namespace icon {
 			
 			gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
 			// gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (item), true); // ???
+			gtk_widget_show_all (item);
+		}
+		
+		// separator
+		{	GtkWidget *item = gtk_separator_menu_item_new (); // ???
+			gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
 			gtk_widget_show_all (item);
 		}
 		

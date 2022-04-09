@@ -16,8 +16,8 @@ BEFORE COMPILING, make sure to modify `config::XDevs` for the names of the *inpu
 
 You need the following libraries, and their respective headers:
 
- - gio (>=2.0)
- - gtk+ (>=2.0)
+ - gio     
+ - gtk+
  - x11
  - xrandr
  - xinput

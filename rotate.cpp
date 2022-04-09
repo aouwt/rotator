@@ -329,9 +329,9 @@ namespace icon {
 		append_radio_item ("Right", G_CALLBACK (callback::r_right));
 		append_radio_item ("Down", G_CALLBACK (callback::r_down));
 		
-		// open popup menu on right click
+		// open popup menu on click
 		g_signal_connect (
-			G_OBJECT (icon), "popup-menu",
+			G_OBJECT (icon), "button-press-event",
 			G_CALLBACK (callback::popup), NULL
 		);
 		

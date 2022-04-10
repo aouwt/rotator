@@ -3,6 +3,8 @@ Basic rotation control tray icon with tiny footprint.
 
 I made this pretty much for my own use only, so I didn't really put in a lot of failsafes in it.
 
+Note that I am only able to test this on my own setup, so if anything fails, please let me know! I'd love to make this more universal!
+
 
 ## usage
 

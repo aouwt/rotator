@@ -13,7 +13,7 @@ union TFLOAT {
 
 
 namespace config {
-	// IMPORTANT!!!! List the INPUT devices which you want to rotate here (touchpad, touchscreen, etc)
+	// devices to do things with
 	static const char *XDevs [] = {
 		"MSFT0001:01 06CB:7F27 Touchpad",
 		"Wacom HID 517E Pen stylus",
@@ -43,7 +43,7 @@ namespace config {
 			 0, 0, 1
 		}
 	};
-}
+};
 
 
 #define TDEVS (sizeof (config::XDevs) / sizeof (config::XDevs [0]))
@@ -54,6 +54,8 @@ namespace all {
 	static void rot (Rotation dir);
 }
 static bool on = false;
+
+
 
 
 namespace x11 {
@@ -239,13 +241,10 @@ namespace icon {
 	
 	namespace callback {
 		static void toggle (GtkMenuItem *self, gpointer dat) {
-			if (on) {
-				on = false;
+			if (on)
 				all::disable ();
-			} else {
-				on = true;
+			else
 				all::enable ();
-			}
 		}
 		
 		static void popup (GtkStatusIcon *self, guint btn, guint time, gpointer dat) {
@@ -346,12 +345,14 @@ static void all::setup (void) {
 }
 
 static void all::enable (void) {
+	on = true;
 	icon::enable ();
 	motion::enable ();
 	x11::enable ();
 }
 
 static void all::disable (void) {
+	on = false;
 	icon::disable ();
 	motion::disable ();
 	x11::disable ();
